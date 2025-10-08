@@ -4,7 +4,6 @@
 #define BUTTON_NEXT     GPIO_Pin_4
 #define BUTTON_UP       GPIO_Pin_5
 #define BUTTON_DOWN     GPIO_Pin_6
-#define BUTTON_PRESSED  0
 
 /* Global define */
 
@@ -40,10 +39,30 @@ int main(void) {
 
   initPortC();
 
-  while(1) {
+  uint8_t cycles = 0;
+
+  while (1) {
     uint16_t buttons = GPIO_ReadInputData(GPIOC);
-    if ((buttons & BUTTON_SETTINGS) == BUTTON_PRESSED) {
-      printf("Settings pressed");
+    uint8_t pressed = 0;
+
+    if ((buttons & BUTTON_SETTINGS) == 0) {
+      cycles++;
+
+      if (cycles > 16) {
+        cycles = 0;
+        pressed = 1;
+      }
+    } else {
+      if (cycles > 10) {
+        pressed = 1;
+
+        printf("Cycles: %d\r\n", cycles);
+        cycles = 0;
+      }
+    }
+
+    if (pressed > 0) {
+      printf("Pressed\r\n");
     }
 
     Delay_Ms(20);
